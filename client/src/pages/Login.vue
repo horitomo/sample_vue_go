@@ -1,33 +1,35 @@
 <template>
     <div>
-        <p>{{ hoge }}</p>
-        <button>hoge</button>
-        <form @submit.prevent="test">
-            <button type="submit">get</button>
-        </form>
+        <h1>login</h1>
+	<form @submit.prevent="login">
+		<label for="">ID：</label>
+		<input type="text" v-model="loginform.id">
+		<label for="">Password：</label>
+		<input type="text" v-model="loginform.password">
+		<input type="submit" value="ログイン">
+	</form>
+	<a href="register">新規登録</a>
     </div>
 </template>
+
 <script>
 export default {
     data() {
         return {
-            msg : 'msg',
-            hoge: ''
-        }
+            loginform : {
+                id : '',
+                password : '',
+            },
+            hoge : ''
+        };
     },
-    // methods : {
-    //     async test(){
-    //         var a = this.axios.post("http://localhost:8888/image")
-    //         console.log(a)
-    //         this.msg = a
-    //     }
-    // },
-    methods: {
-        test() {
-            console.log(this.msg)
-        this.axios
-        .post('/api', {"msg" : this.msg})
-        .then(response => (this.hoge = response))
+    methods : {
+        async login() {
+            await this.axios
+            .post('/login', {"id" : this.loginform.id,"password" : this.loginform.password})
+            .then(response => (this.hoge = response))
+            console.log(this.loginform)
+            console.log(this.hoge)
         }
     }
 }
