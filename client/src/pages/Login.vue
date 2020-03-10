@@ -20,6 +20,7 @@
 			</form>
 		</div>
 		<div class="panel" v-show="tab === 2">
+			{{ this.msg }}
 			<form class="form" @submit.prevent="register">
 			<label for="username">Name</label>
 			<input type="text" class="form__item" id="username" v-model="registerForm.name">
@@ -49,26 +50,35 @@ export default {
 				email: '',
 				password: '',
             },
-            user : ''
+			user : '',
+			msg : ''
         };
     },
     methods : {
         async login() {
             await this.axios
             .post('/login', {"email" : this.loginForm.email,"password" : this.loginForm.password})
-            .then(response => (this.hoge = response))
-            console.log(this.loginform)
-            console.log(this.user)
+            .then(response => (this.user = response))
+			console.log(this.user)
+			await this.$store.dispatch('auth/login', this.user.data.request)
+			this.$router.push("/")
         },
         async register() {
-            console.log(this.registerForm)
-            await this.axios
-            .post('/register', {"email" : this.registerForm.email,"password" : this.registerForm.password, "name" : this.registerForm.name})
-            .then(response => (this.user = response))
-            if(this.user){
-                this.$router.push("/")
-            }
-            console.log(this.user)
+			this.msg = ''
+			if(!this.registerForm.name || !this.registerForm.password || !this.registerForm.email){
+				this.msg = "入力が足りません"
+				console.log(this.msg)
+			}else {
+				console.log(this.registerForm)
+				await this.axios
+				.post('/register', {"email" : this.registerForm.email,"password" : this.registerForm.password, "name" : this.registerForm.name})
+				.then(response => (this.user = response))
+				if(!this.user.data.error){
+					await this.$store.dispatch('auth/register', this.user.data.request)
+					this.$router.push("/")
+				}
+				console.log(this.user)
+			}
         }
     }
 }
