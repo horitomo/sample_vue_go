@@ -14,7 +14,7 @@ type clientValue struct {
 }
 
 type clientLoginValue struct {
-	ID       string `json:"id"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -64,19 +64,32 @@ func main() {
 	r.POST("/login", func(c *gin.Context) {
 		var loginForm clientLoginValue
 		c.BindJSON(&loginForm)
+		// c.Header("Access-Control-Allow-Origin", "*")
+		// c.JSON(200, gin.H{
+		// 	"message": "ping",
+		// 	"request": loginForm,
+		// })
+
+		var result Users
+		error := db.Where("email = ? AND password = ?", loginForm.Email, loginForm.Password).Find(&result).Error
+		if error != nil {
+			return
+		}
+		log.Println(result)
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(200, gin.H{
-			"message": "ping",
-			"request": loginForm,
+			"request": result,
 		})
 	})
 
 	r.POST("/register", func(c *gin.Context) {
+		var msg string
 		var users Users
 		c.BindJSON(&users)
 		log.Println(users)
 		error := db.Create(&users).Error
 		if error != nil {
+			msg = "aaa"
 			fmt.Println(error)
 		} else {
 			fmt.Println("データ追加成功")
@@ -84,7 +97,7 @@ func main() {
 		usersSession = users
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(200, gin.H{
-			"message": "ping",
+			"error":   msg,
 			"request": usersSession,
 		})
 	})
